@@ -1,0 +1,71 @@
+const path = require('path');
+
+module.exports = {
+  mode: 'production',
+  entry: {
+    main: path.resolve(__dirname, 'src/index.js')
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'universal-sdk.js',
+    library: 'UniversalAuth',
+    libraryTarget: 'umd',
+    globalObject: 'this',
+    umdNamedDefine: true,
+    clean: true
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
+  },
+  resolve: {
+    extensions: ['.js']
+  },
+  // This ensures that dynamic imports work correctly
+  experiments: {
+    outputModule: true,
+  },
+  // Include all files in the src directory and its subdirectories
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        include: path.resolve(__dirname, 'src'),
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: [
+              // This plugin helps with dynamic imports
+              '@babel/plugin-syntax-dynamic-import'
+            ]
+          }
+        }
+      }
+    ]
+  },
+  // Configure optimization for code splitting
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        providers: {
+          test: /[\\/]providers[\\/]/,
+          name: 'providers',
+          chunks: 'all'
+        }
+      }
+    }
+  }
+};
