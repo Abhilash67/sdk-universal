@@ -1,0 +1,49 @@
+# Universal Auth SDK Documentation
+
+## Folder Structure
+
+```
+universal-sdk/
+├── src/
+│   ├── auth-provider.js     # Base provider class & factory function
+│   ├── index.js             # Main entry point
+│   └── providers/
+│       └── auth0-provider.js # Auth0 implementation
+├── dist/                    # Compiled files
+├── package.json             # Package configuration
+└── webpack.config.js        # Build configuration
+```
+
+## Authentication Flow
+
+1. Application initializes SDK with Auth0 configuration
+2. User clicks login button
+3. SDK redirects to Auth0 login page
+4. User authenticates with Auth0
+5. Auth0 redirects back to application
+6. SDK processes the authentication response
+7. Application can now access user profile
+
+## Client Integration Steps
+
+```javascript
+// 1. Import the SDK
+import UniversalAuth from 'universal-sdk';
+
+// 2. Initialize with Auth0 configuration
+const auth = await UniversalAuth.createAuthProvider('auth0', {
+  domain: 'your-domain.auth0.com',
+  clientId: 'your-client-id',
+  redirectUri: window.location.origin
+});
+
+// 3. Use the SDK methods
+// Login
+auth.login();
+
+// Logout
+auth.logout();
+
+// Get user profile
+const userProfile = await auth.getUserProfile();
+```
