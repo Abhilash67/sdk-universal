@@ -1,0 +1,389 @@
+# Universal Auth SDK Documentation
+
+## Overview
+
+The Universal Auth SDK is a provider-agnostic authentication library that enables applications to implement authentication flows without being tightly coupled to a specific authentication provider. This approach allows seamless switching between different authentication providers (like Auth0, Okta, etc.) with minimal changes to the application code.
+
+## Table of Contents
+
+1. [Installation](#installation)
+2. [Getting Started](#getting-started)
+3. [Core Concepts](#core-concepts)
+4. [Authentication Methods](#authentication-methods)
+5. [Switching Providers](#switching-providers)
+6. [Configuration Reference](#configuration-reference)
+7. [Example Implementations](#example-implementations)
+8. [Troubleshooting](#troubleshooting)
+
+## Installation
+
+Install the Universal Auth SDK using npm:
+
+```bash
+npm install universal-sdk
+```
+
+Or using yarn:
+
+```bash
+yarn add universal-sdk
+```
+
+## Getting Started
+
+### Basic Usage
+
+```javascript
+import UniversalAuth from 'universal-sdk';
+
+// Initialize with Auth0
+const auth = await UniversalAuth.createAuthProvider('auth0', {
+  domain: 'your-auth0-domain.auth0.com',
+  clientId: 'your-auth0-client-id',
+  audience: 'https://your-audience-identifier/',
+  redirectUri: window.location.origin
+});
+
+// Check if user is authenticated
+const isAuthenticated = auth.isAuthenticated();
+
+// Login
+auth.login();
+
+// Get user profile
+const userProfile = await auth.getUserProfile();
+
+// Logout
+auth.logout();
+```
+
+## Core Concepts
+
+### Architecture
+
+The Universal Auth SDK uses the following architectural patterns:
+
+1. **Factory Pattern**: The `createAuthProvider` function creates the appropriate provider based on the specified type.
+2. **Abstract Provider Interface**: All providers implement the same interface, ensuring consistent behavior regardless of the underlying provider.
+3. **Lazy Loading**: Provider implementations are loaded only when requested, reducing initial bundle size.
+
+### Provider Interface
+
+All authentication providers implement these common methods:
+
+- `login()`: Initiates the login process
+- `logout()`: Logs the user out
+- `isAuthenticated()`: Checks if the user is authenticated
+- `getUserProfile()`: Retrieves the user's profile information
+- `getAccessToken()`: Gets the current access token
+
+## Authentication Methods
+
+### Login
+
+```javascript
+auth.login();
+```
+
+Initiates the authentication flow by redirecting to the provider's login page. After successful authentication, the user is redirected back to the application.
+
+### Logout
+
+```javascript
+auth.logout();
+```
+
+Logs the user out by clearing local storage and redirecting to the provider's logout endpoint.
+
+### Checking Authentication Status
+
+```javascript
+const isAuthenticated = auth.isAuthenticated();
+if (isAuthenticated) {
+  // User is authenticated
+} else {
+  // User is not authenticated
+}
+```
+
+### Getting User Profile
+
+```javascript
+try {
+  const userProfile = await auth.getUserProfile();
+  console.log('User profile:', userProfile);
+} catch (error) {
+  console.error('Failed to get user profile:', error);
+}
+```
+
+### Getting Access Token
+
+```javascript
+try {
+  const accessToken = auth.getAccessToken();
+  // Use the token for API calls
+  fetch('https://api.example.com/data', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  });
+} catch (error) {
+  console.error('Failed to get access token:', error);
+}
+```
+
+## Switching Providers
+
+### Step 1: Update Provider Type and Configuration
+
+To switch from one provider to another, you only need to change the provider type and configuration when creating the auth provider:
+
+```javascript
+// From Auth0:
+const auth = await UniversalAuth.createAuthProvider('auth0', {
+  domain: 'your-auth0-domain.auth0.com',
+  clientId: 'your-auth0-client-id',
+  audience: 'https://your-audience-identifier/',
+  redirectUri: window.location.origin
+});
+
+// To Okta:
+const auth = await UniversalAuth.createAuthProvider('okta', {
+  orgUrl: 'https://your-org.okta.com',
+  clientId: 'your-okta-client-id',
+  redirectUri: window.location.origin
+});
+```
+
+### Step 2: No Changes Needed in Application Logic
+
+The rest of your application can remain unchanged. All authentication methods (`login()`, `logout()`, `getUserProfile()`, etc.) work the same way regardless of the provider.
+
+### Storing Provider Preference
+
+For applications that allow users to choose their authentication provider, you can store the provider preference:
+
+```javascript
+// Save provider preference
+localStorage.setItem('authProvider', 'okta');
+
+// Later, load the preference
+const providerType = localStorage.getItem('authProvider') || 'auth0';
+const auth = await UniversalAuth.createAuthProvider(providerType, config);
+```
+
+## Configuration Reference
+
+### Auth0 Configuration
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| domain | Your Auth0 domain | Yes |
+| clientId | Your Auth0 client ID | Yes |
+| audience | API identifier | Yes |
+| redirectUri | URL to redirect after authentication | No (defaults to `window.location.origin`) |
+| scope | OAuth scopes to request | No (defaults to `openid profile email`) |
+
+### Okta Configuration
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| orgUrl | Your Okta organization URL | Yes |
+| clientId | Your Okta client ID | Yes |
+| redirectUri | URL to redirect after authentication | No (defaults to `window.location.origin`) |
+| scopes | OAuth scopes to request | No (defaults to `['openid', 'profile', 'email']`) |
+
+## Example Implementations
+
+### React Integration
+
+```jsx
+import React, { useState, useEffect } from 'react';
+import UniversalAuth from 'universal-sdk';
+
+function AuthComponent() {
+  const [auth, setAuth] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+  
+  useEffect(() => {
+    const initAuth = async () => {
+      const authInstance = await UniversalAuth.createAuthProvider('auth0', {
+        domain: 'your-auth0-domain.auth0.com',
+        clientId: 'your-auth0-client-id',
+        audience: 'https://your-audience-identifier/'
+      });
+      
+      setAuth(authInstance);
+      setIsAuthenticated(authInstance.isAuthenticated());
+      
+      if (authInstance.isAuthenticated()) {
+        const profile = await authInstance.getUserProfile();
+        setUserProfile(profile);
+      }
+    };
+    
+    initAuth();
+  }, []);
+  
+  const handleLogin = () => auth?.login();
+  const handleLogout = () => auth?.logout();
+  
+  return (
+    <div>
+      {!isAuthenticated ? (
+        <button onClick={handleLogin}>Log In</button>
+      ) : (
+        <div>
+          <p>Welcome, {userProfile?.name}</p>
+          <button onClick={handleLogout}>Log Out</button>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Angular Integration
+
+```typescript
+// auth.service.ts
+import { Injectable } from '@angular/core';
+import UniversalAuth from 'universal-sdk';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private auth: any = null;
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  
+  private userProfileSubject = new BehaviorSubject<any>(null);
+  public userProfile$ = this.userProfileSubject.asObservable();
+  
+  async initializeAuth() {
+    this.auth = await UniversalAuth.createAuthProvider('auth0', {
+      domain: 'your-auth0-domain.auth0.com',
+      clientId: 'your-auth0-client-id',
+      audience: 'https://your-audience-identifier/'
+    });
+    
+    this.isAuthenticatedSubject.next(this.auth.isAuthenticated());
+    
+    if (this.auth.isAuthenticated()) {
+      const profile = await this.auth.getUserProfile();
+      this.userProfileSubject.next(profile);
+    }
+  }
+  
+  login() {
+    this.auth?.login();
+  }
+  
+  logout() {
+    this.auth?.logout();
+  }
+}
+```
+
+### Vue.js Integration
+
+```javascript
+// src/auth.js
+import UniversalAuth from 'universal-sdk';
+
+export const initAuth = async () => {
+  return await UniversalAuth.createAuthProvider('auth0', {
+    domain: 'your-auth0-domain.auth0.com',
+    clientId: 'your-auth0-client-id',
+    audience: 'https://your-audience-identifier/'
+  });
+};
+
+// src/components/Login.vue
+<template>
+  <div>
+    <button v-if="!isAuthenticated" @click="login">Log In</button>
+    <div v-else>
+      <p>Welcome, {{ userProfile?.name }}</p>
+      <button @click="logout">Log Out</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { initAuth } from '../auth';
+
+export default {
+  data() {
+    return {
+      auth: null,
+      isAuthenticated: false,
+      userProfile: null
+    };
+  },
+  async created() {
+    this.auth = await initAuth();
+    this.isAuthenticated = this.auth.isAuthenticated();
+    
+    if (this.isAuthenticated) {
+      this.userProfile = await this.auth.getUserProfile();
+    }
+  },
+  methods: {
+    login() {
+      this.auth.login();
+    },
+    logout() {
+      this.auth.logout();
+    }
+  }
+};
+</script>
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Authentication Callback Issues
+
+If you're having issues with the authentication callback:
+
+1. Ensure your redirect URI is correctly configured in your provider dashboard
+2. Check that the redirect URI matches exactly in both your provider settings and SDK configuration
+3. Verify that the authentication callback handler is properly set up
+
+#### Token Storage Issues
+
+If authentication state is not being persisted:
+
+1. Ensure your application has access to localStorage
+2. Check for any browser privacy settings that might be blocking cookies or storage
+
+#### Provider-Specific Issues
+
+For provider-specific issues:
+
+1. Auth0: Check your domain, client ID, and audience values
+2. Okta: Verify your organization URL and client ID
+
+### Debugging
+
+Enable debugging to see detailed logs:
+
+```javascript
+const auth = await UniversalAuth.createAuthProvider('auth0', {
+  domain: 'your-domain.auth0.com',
+  clientId: 'your-client-id',
+  audience: 'your-audience',
+  debug: true  // Enable debugging
+});
+```
+
+## Support
+
+For additional support or to report issues with the Universal Auth SDK, please visit our [GitHub repository](https://github.com/yourusername/universal-sdk/issues).
