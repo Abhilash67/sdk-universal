@@ -1,0 +1,240 @@
+() => {
+  return (
+    <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden p-4">
+      <h1 className="text-2xl font-bold text-center mb-4">How Our Universal Auth SDK Works</h1>
+      
+      {/* Flow Chart */}
+      <div className="border rounded p-4 mb-6 bg-gray-50">
+        <h2 className="text-lg font-bold mb-2 text-center">Authentication Flow Diagram</h2>
+        <svg viewBox="0 0 700 300" className="w-full">
+          {/* Background with grid */}
+          <rect width="700" height="300" fill="#f8f8f8" />
+          <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e0e0e0" strokeWidth="0.5"/>
+          </pattern>
+          <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+            <rect width="100" height="100" fill="url(#smallGrid)"/>
+            <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#d0d0d0" strokeWidth="1"/>
+          </pattern>
+          <rect width="700" height="300" fill="url(#grid)" />
+          
+          {/* Title */}
+          <text x="350" y="30" fontFamily="Arial" fontSize="16" fontWeight="bold" textAnchor="middle">Universal Auth SDK with Auth0</text>
+          
+          {/* Application Box */}
+          <rect x="50" y="80" width="120" height="40" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="110" y="105" fontFamily="Arial" fontSize="12" fontWeight="bold" textAnchor="middle">Application</text>
+          
+          {/* SDK Box */}
+          <rect x="230" y="80" width="120" height="40" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="290" y="105" fontFamily="Arial" fontSize="12" fontWeight="bold" textAnchor="middle">Universal SDK</text>
+          
+          {/* Auth0Provider Box */}
+          <rect x="410" y="80" width="120" height="40" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="470" y="105" fontFamily="Arial" fontSize="12" fontWeight="bold" textAnchor="middle">Auth0Provider</text>
+          
+          {/* Auth0 Box */}
+          <rect x="590" y="80" width="60" height="40" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="620" y="105" fontFamily="Arial" fontSize="12" fontWeight="bold" textAnchor="middle">Auth0</text>
+          
+          {/* Methods Boxes */}
+          <rect x="230" y="180" width="120" height="30" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="290" y="200" fontFamily="Arial" fontSize="12" textAnchor="middle">login()</text>
+          
+          <rect x="230" y="220" width="120" height="30" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="290" y="240" fontFamily="Arial" fontSize="12" textAnchor="middle">logout()</text>
+          
+          <rect x="230" y="260" width="120" height="30" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="290" y="280" fontFamily="Arial" fontSize="12" textAnchor="middle">getUserProfile()</text>
+          
+          {/* Configuration Box */}
+          <rect x="410" y="180" width="120" height="110" rx="0" fill="white" stroke="#666" strokeWidth="1.5" />
+          <text x="470" y="200" fontFamily="Arial" fontSize="12" fontWeight="bold" textAnchor="middle">Auth0 Config</text>
+          <text x="470" y="220" fontFamily="Arial" fontSize="10" textAnchor="middle">domain</text>
+          <text x="470" y="240" fontFamily="Arial" fontSize="10" textAnchor="middle">clientId</text>
+          <text x="470" y="260" fontFamily="Arial" fontSize="10" textAnchor="middle">audience</text>
+          <text x="470" y="280" fontFamily="Arial" fontSize="10" textAnchor="middle">redirectUri</text>
+          
+          {/* Horizontal Arrows */}
+          <line x1="170" y1="100" x2="230" y2="100" stroke="#666" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
+          <line x1="350" y1="100" x2="410" y2="100" stroke="#666" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
+          <line x1="530" y1="100" x2="590" y2="100" stroke="#666" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
+          
+          {/* Vertical Arrows */}
+          <line x1="290" y1="120" x2="290" y2="180" stroke="#666" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
+          <line x1="470" y1="120" x2="470" y2="180" stroke="#666" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
+          
+          {/* Arrow marker definition */}
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+          
+          {/* Labels */}
+          <text x="200" y="90" fontFamily="Arial" fontSize="10" textAnchor="middle">imports</text>
+          <text x="380" y="90" fontFamily="Arial" fontSize="10" textAnchor="middle">creates</text>
+          <text x="560" y="90" fontFamily="Arial" fontSize="10" textAnchor="middle">calls</text>
+          <text x="290" y="150" fontFamily="Arial" fontSize="10" textAnchor="middle">exposes methods</text>
+          <text x="470" y="150" fontFamily="Arial" fontSize="10" textAnchor="middle">requires</text>
+        </svg>
+      </div>
+      
+      {/* Core Architecture Section */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold mb-3">Core Architecture</h2>
+        <p className="mb-2">
+          Our Universal Auth SDK is designed with a <strong>provider-agnostic approach</strong> that decouples your application from specific authentication providers. This is achieved through several architectural patterns:
+        </p>
+        
+        <h3 className="text-lg font-bold mt-4 mb-2">1. Factory Pattern</h3>
+        <div className="bg-gray-50 p-3 rounded mb-3 font-mono text-sm">
+          // The factory function creates the right provider based on type<br/>
+          const auth = await UniversalAuth.createAuthProvider('auth0', config);
+        </div>
+        <p className="mb-2">
+          The factory examines the provider type ('auth0') and creates an instance of the Auth0Provider class, injecting the configuration. This pattern allows us to easily add support for other providers in the future.
+        </p>
+        
+        <h3 className="text-lg font-bold mt-4 mb-2">2. Abstract Provider Interface</h3>
+        <div className="bg-gray-50 p-3 rounded mb-3 font-mono text-sm">
+          // Abstract base class that all providers must implement<br/>
+          class AuthProvider &#123;<br/>
+          &nbsp;&nbsp;login() &#123; /* must be implemented */ &#125;<br/>
+          &nbsp;&nbsp;logout() &#123; /* must be implemented */ &#125;<br/>
+          &nbsp;&nbsp;getUserProfile() &#123; /* must be implemented */ &#125;<br/>
+          &nbsp;&nbsp;isAuthenticated() &#123; /* must be implemented */ &#125;<br/>
+          &nbsp;&nbsp;getAccessToken() &#123; /* must be implemented */ &#125;<br/>
+          &#125;
+        </div>
+        <p className="mb-2">
+          This ensures consistent behavior regardless of the underlying provider.
+        </p>
+        
+        <h3 className="text-lg font-bold mt-4 mb-2">3. Provider-Specific Implementation</h3>
+        <div className="bg-gray-50 p-3 rounded mb-3 font-mono text-sm">
+          // Auth0-specific implementation<br/>
+          class Auth0Provider extends AuthProvider &#123;<br/>
+          &nbsp;&nbsp;login() &#123;<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;// Construct Auth0-specific login URL<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;// Redirect to Auth0 login page<br/>
+          &nbsp;&nbsp;&#125;<br/>
+          &nbsp;&nbsp;<br/>
+          &nbsp;&nbsp;// Other method implementations...<br/>
+          &#125;
+        </div>
+      </div>
+      
+      {/* Authentication Flow Section */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold mb-3">Authentication Flow in Detail</h2>
+        
+        <div className="bg-blue-50 p-4 rounded mb-4 border-l-4 border-blue-500">
+          <h3 className="text-lg font-bold mb-2">Initialization Phase</h3>
+          <ol className="list-decimal ml-5">
+            <li><strong>Import SDK</strong>: Your application imports the Universal Auth SDK</li>
+            <li><strong>Create Provider</strong>: You call <code>createAuthProvider('auth0', config)</code> with Auth0 configuration</li>
+            <li><strong>Provider Instance</strong>: The SDK creates and returns an Auth0Provider instance</li>
+            <li><strong>Check Authentication</strong>: The provider checks if the user is already authenticated</li>
+          </ol>
+        </div>
+        
+        <div className="bg-green-50 p-4 rounded mb-4 border-l-4 border-green-500">
+          <h3 className="text-lg font-bold mb-2">Login Flow</h3>
+          <ol className="list-decimal ml-5">
+            <li><strong>Trigger Login</strong>: Your application calls <code>auth.login()</code></li>
+            <li><strong>Construct URL</strong>: The Auth0Provider constructs the appropriate Auth0 authorization URL</li>
+            <li><strong>Redirect</strong>: The user is redirected to Auth0's login page</li>
+            <li><strong>User Authentication</strong>: The user enters credentials on Auth0's page</li>
+            <li><strong>Callback</strong>: Auth0 redirects back to your application with an authorization code</li>
+            <li><strong>Code Exchange</strong>: The SDK exchanges this code for access and ID tokens</li>
+            <li><strong>Token Storage</strong>: Tokens are securely stored in localStorage</li>
+            <li><strong>State Update</strong>: Authentication state is updated</li>
+          </ol>
+        </div>
+        
+        <div className="bg-yellow-50 p-4 rounded mb-4 border-l-4 border-yellow-500">
+          <h3 className="text-lg font-bold mb-2">Profile Retrieval</h3>
+          <ol className="list-decimal ml-5">
+            <li><strong>Request Profile</strong>: Your application calls <code>auth.getUserProfile()</code></li>
+            <li><strong>Token Verification</strong>: The SDK verifies the access token is valid</li>
+            <li><strong>API Call</strong>: The SDK makes a request to Auth0's userinfo endpoint</li>
+            <li><strong>Data Normalization</strong>: Provider-specific profile data is transformed into a standard format</li>
+            <li><strong>Return Profile</strong>: The normalized user profile is returned to your application</li>
+          </ol>
+        </div>
+        
+        <div className="bg-red-50 p-4 rounded mb-4 border-l-4 border-red-500">
+          <h3 className="text-lg font-bold mb-2">Logout Process</h3>
+          <ol className="list-decimal ml-5">
+            <li><strong>Trigger Logout</strong>: Your application calls <code>auth.logout()</code></li>
+            <li><strong>Clear Storage</strong>: The SDK removes tokens from localStorage</li>
+            <li><strong>Redirect</strong>: The user is redirected to Auth0's logout endpoint</li>
+            <li><strong>Session Termination</strong>: Auth0 ends the user's session</li>
+            <li><strong>Return to App</strong>: The user is redirected back to your application</li>
+          </ol>
+        </div>
+      </div>
+      
+      {/* Benefits Section */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold mb-3">Benefits of Our Architecture</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border p-3 rounded">
+            <h3 className="font-bold">Separation of Concerns</h3>
+            <p>Authentication logic is isolated from your application logic</p>
+          </div>
+          <div className="border p-3 rounded">
+            <h3 className="font-bold">Consistent API</h3>
+            <p>Your application code uses the same methods regardless of provider</p>
+          </div>
+          <div className="border p-3 rounded">
+            <h3 className="font-bold">Future-Proofing</h3>
+            <p>Switching providers requires changing only one line of code</p>
+          </div>
+          <div className="border p-3 rounded">
+            <h3 className="font-bold">Simplified Integration</h3>
+            <p>Complex OAuth flows are handled for you</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Configuration Section */}
+      <div>
+        <h2 className="text-xl font-bold mb-3">Configuration Details</h2>
+        <p className="mb-2">The Auth0 configuration requires:</p>
+        <table className="w-full border-collapse mb-4">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Parameter</th>
+              <th className="border p-2 text-left">Description</th>
+              <th className="border p-2 text-left">Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2">domain</td>
+              <td className="border p-2">Your Auth0 tenant domain</td>
+              <td className="border p-2 font-mono text-xs">'your-tenant.auth0.com'</td>
+            </tr>
+            <tr>
+              <td className="border p-2">clientId</td>
+              <td className="border p-2">Application client ID</td>
+              <td className="border p-2 font-mono text-xs">'abc123def456ghi789'</td>
+            </tr>
+            <tr>
+              <td className="border p-2">audience</td>
+              <td className="border p-2">API identifier</td>
+              <td className="border p-2 font-mono text-xs">'https://api.example.com'</td>
+            </tr>
+            <tr>
+              <td className="border p-2">redirectUri</td>
+              <td className="border p-2">Callback URL</td>
+              <td className="border p-2 font-mono text-xs">'https://yourapp.com/callback'</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
