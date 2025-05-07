@@ -1,0 +1,15 @@
+module.exports = {
+    presets: [
+      ['@babel/preset-env', {
+        targets: {
+          browsers: ['last 2 versions', 'not dead', 'not < 2%'],
+          node: '14'
+        },
+        modules: false // Important for webpack code splitting
+      }]
+    ],
+    plugins: [
+      '@babel/plugin-syntax-dynamic-import',
+      '@babel/plugin-proposal-class-properties'
+    ]
+  };
