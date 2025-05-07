@@ -1,0 +1,114 @@
+# Implementation Guide: Changing Authentication Providers
+
+This guide provides step-by-step instructions for switching authentication providers using the Universal Auth SDK.
+
+## Current Application Setup
+
+We assume your application is currently using Auth0 with the Universal Auth SDK:
+
+```javascript
+// Current implementation with Auth0
+const auth = await UniversalAuth.createAuthProvider('auth0', {
+  domain: 'your-auth0-domain.auth0.com',
+  clientId: 'your-auth0-client-id',
+  audience: 'https://your-audience-identifier/',
+  redirectUri: window.location.origin
+});
+```
+
+## Steps to Switch to Okta
+
+### 1. Register an Application in Okta
+
+Before switching, you need to register your application in Okta:
+
+1. Sign up for an Okta Developer account if you don't have one
+2. Create a new OIDC application in the Okta Developer Console
+3. Configure the application with the appropriate redirect URIs
+4. Note your Okta organization URL and client ID
+
+### 2. Update SDK Initialization
+
+Change the provider type and configuration in your application:
+
+```javascript
+// Updated implementation with Okta
+const auth = await UniversalAuth.createAuthProvider('okta', {
+  orgUrl: 'https://your-org.okta.com',
+  clientId: 'your-okta-client-id',
+  redirectUri: window.location.origin
+});
+```
+
+### 3. No Changes Needed to Application Logic
+
+The beauty of the Universal Auth SDK is that no other changes are required. All authentication methods will continue to work the same way:
+
+```javascript
+// These methods work the same with both providers
+auth.login();
+auth.logout();
+const isAuthenticated = auth.isAuthenticated();
+const userProfile = await auth.getUserProfile();
+const accessToken = auth.getAccessToken();
+```
+
+### 4. Testing the New Provider
+
+After making the change:
+
+1. Test the login flow
+2. Verify that user profiles are correctly retrieved
+3. Confirm that tokens are properly stored and managed
+4. Test the logout flow
+
+### 5. Supporting Multiple Providers (Optional)
+
+If you want to allow users to choose their provider:
+
+```javascript
+// Function to create the appropriate auth provider
+async function createAuth(providerType) {
+  const configs = {
+    auth0: {
+      domain: 'your-auth0-domain.auth0.com',
+      clientId: 'your-auth0-client-id',
+      audience: 'https://your-audience-identifier/'
+    },
+    okta: {
+      orgUrl: 'https://your-org.okta.com',
+      clientId: 'your-okta-client-id'
+    }
+  };
+  
+  return await UniversalAuth.createAuthProvider(providerType, configs[providerType]);
+}
+
+// Use based on user selection
+const selectedProvider = userPreference || 'auth0';
+const auth = await createAuth(selectedProvider);
+```
+
+## Common Configuration Issues
+
+When switching providers, watch out for these common issues:
+
+1. **Redirect URI Mismatch**: Ensure the redirect URI is exactly the same in both your provider settings and SDK configuration
+2. **Missing Scopes**: Different providers might require different scopes to access the same information
+3. **Token Handling**: Some providers use different token formats or storage mechanisms
+
+## Provider-Specific Notes
+
+### Auth0 to Okta
+
+- Okta uses an organization URL instead of a domain
+- Okta scopes are typically provided as an array, while Auth0 uses a space-separated string
+
+### Auth0 to Firebase
+
+- Firebase uses a different authentication flow (popup vs. redirect)
+- Firebase requires a different set of configuration parameters
+
+## Conclusion
+
+By using the Universal Auth SDK, switching authentication providers becomes a simple configuration change rather than a major refactoring effort. The provider-agnostic interface ensures that your application logic remains unchanged regardless of the underlying authentication provider.
